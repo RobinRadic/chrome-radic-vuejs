@@ -1,0 +1,30 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "allowJs": true,
+        "strictNullChecks": false,
+        "noImplicitAny": false,
+        "noImplicitReturns": false,
+        "noImplicitThis": false,
+        "noImplicitUseStrict": false,
+        "experimentalDecorators": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "inlineSourceMap": true,
+        "jsx": "react",
+        "lib": ["dom","es2017"],
+        "baseUrl": ".",
+        "typeRoots": [
+            "../node_modules/@types",
+        ]
+    },
+    "include": [
+        "*.ts",
+        "**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

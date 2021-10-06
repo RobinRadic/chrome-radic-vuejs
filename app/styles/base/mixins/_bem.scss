@@ -1,0 +1,208 @@
+@use "sass:list";
+
+@function bem--selectorToString($selector) {
+    $selector : inspect($selector);
+    $selector : str-slice($selector, 2, -2);
+    @return $selector;
+}
+
+@function bem--containsModifier($selector) {
+    $selector : bem--selectorToString($selector);
+
+    @if str-index($selector, $bem--modifier-separator) {
+        @return true;
+    } @else {
+        @return false;
+    }
+}
+
+@function bem--containWhenFlag($selector) {
+    $selector : bem--selectorToString($selector);
+
+    @if str-index($selector, '.' + $bem--state-prefix) {
+        @return true
+    } @else {
+        @return false
+    }
+}
+
+@function bem--containPseudoClass($selector) {
+    $selector : bem--selectorToString($selector);
+
+    @if str-index($selector, ':') {
+        @return true
+    } @else {
+        @return false
+    }
+}
+
+@function bem--hitAllSpecialNestRule($selector) {
+
+    @return bem--containsModifier($selector) or bem--containWhenFlag($selector) or bem--containPseudoClass($selector);
+}
+@mixin at-root($selectorName) {
+    @at-root .#{$bem--namespace}-#{$selectorName} {
+        @content
+    }
+}
+/* BEM
+ -------------------------- */
+@mixin B($block) {
+    $bem--B : $bem--namespace+'-'+$block !global;
+
+    .#{$bem--B} {
+        @content;
+    }
+}
+@function bem-b(){
+    @return $bem--B;
+}
+
+@mixin E($element) {
+    $bem--E          : $element !global;
+    $selector        : &;
+    $currentSelector : "";
+    @each $unit in $element {
+        $currentSelector : #{$currentSelector + "." + $bem--B + $bem--element-separator + $unit + ","};
+    }
+
+    @if bem--hitAllSpecialNestRule($selector) {
+        @at-root {
+            #{$selector} {
+                #{$currentSelector} {
+                    @content;
+                }
+            }
+        }
+    } @else {
+        @at-root {
+            #{$currentSelector} {
+                @content;
+            }
+        }
+    }
+}
+@function bem-e(){
+    @return $bem--E;
+}
+
+@function m($modifier, $parent:null) {
+    $currentSelector:"";
+    @each $unit in $modifier {
+        @if $parent == null {
+            $currentSelector : #{$currentSelector+ & + $bem--modifier-separator + $modifier};
+        } @else if $parent == element {
+            $currentSelector : #{$currentSelector + '.' + $bem--E + $bem--modifier-separator + $modifier};
+        } @else if $parent == block {
+            $currentSelector : #{$currentSelector+ '.' + $bem--B + $bem--modifier-separator + $modifier};
+        }
+    }
+    @return $currentSelector;
+}
+
+
+@mixin M($modifier, $seperator: ",") {
+    $selector        : &;
+    $currentSelector : "";
+    @each $unit in $modifier {
+        $currentSelector : #{$currentSelector + & + $bem--modifier-separator + $unit + $seperator};
+    }
+
+    @at-root {
+        #{$currentSelector} {
+            @content;
+        }
+    }
+}
+
+@mixin M2($modifier) {
+    $selector        : &;
+    $currentSelector : "";
+    @each $unit in $modifier {
+        $currentSelector : #{$currentSelector + & + $bem--modifier-separator + $unit};
+        @if list.index($modifier,$unit) < list.length($modifier) {
+            $currentSelector : #{$currentSelector + "."}
+        }
+    }
+
+    @at-root {
+        #{$currentSelector} {
+            @content;
+        }
+    }
+}
+
+@mixin configurable-M($modifier, $E-flag: false) {
+    $selector      : &;
+    $interpolation : '';
+
+    @if $E-flag {
+        $interpolation : $bem--element-separator + $E-flag;
+    }
+
+    @at-root {
+        #{$selector} {
+            .#{$bem--B+$interpolation+$bem--modifier-separator+$modifier} {
+                @content;
+            }
+        }
+    }
+}
+
+@mixin bem--spec-selector($specSelector: '', $element: $bem--E, $modifier: false, $block: $bem--B) {
+    $modifierCombo : '';
+
+    @if $modifier {
+        $modifierCombo : $bem--modifier-separator + $modifier;
+    }
+
+    @at-root {
+        #{&}#{$specSelector}.#{$block+$bem--element-separator+$element+$modifierCombo} {
+            @content
+        }
+    }
+}
+
+@mixin MEB($modifier: false, $element: $bem--E, $block: $bem--B) {
+    $selector      : &;
+    $modifierCombo : '';
+
+    @if $modifier {
+        $modifierCombo : $bem--modifier-separator + $modifier;
+    }
+
+    @at-root {
+        #{$selector} {
+            .#{$block+$bem--element-separator+$element+$modifierCombo} {
+                @content
+            }
+        }
+    }
+}
+
+@mixin is($state) {
+    @at-root {
+        &.#{$bem--state-prefix + $state} {
+            @content;
+        }
+    }
+}
+
+@mixin extend-rule($name) {
+    @extend #{'%shared-'+$name};
+}
+
+@mixin share-rule($name) {
+    $rule-name : '%shared-'+$name;
+
+    @at-root #{$rule-name} {
+        @content
+    }
+}
+
+@mixin pseudo($pseudo) {
+    @at-root #{&}#{':#{$pseudo}'} {
+        @content
+    }
+}
+

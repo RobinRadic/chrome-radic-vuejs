@@ -1,0 +1,14 @@
+{
+  "appName": {
+    "message": "Vue3 Element Inspector",
+    "description": "The name of the application"
+  },
+  "appShortName": {
+    "message": "Vue3 DOM Inspect",
+    "description": "The short_name (maximum of 12 characters recommended) is a short version of the app's name."
+  },
+  "appDescription": {
+    "message": "It adds a sidebar tab in the elements inspection panel that shows the currently selected component.",
+    "description": "The description of the application"
+  }
+}

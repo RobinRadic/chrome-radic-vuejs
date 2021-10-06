@@ -1,0 +1,35 @@
+@use 'sass:string';
+
+@mixin color-classes($colors: $material-short-colors) {
+    @each $color-name, $color-variants in $colors {
+        @each $color-variant, $hex-value in $color-variants {
+            @if (string.length($color-variant) == 0) {
+                .text-#{$color-name} {
+                    color : #{$hex-value} !important;
+                }
+                .bg-#{$color-name} {
+                    background-color : #{$hex-value} !important;
+                }
+            } @else {
+                .text-#{$color-name}-#{$color-variant} {
+                    color : #{$hex-value} !important;
+                }
+                .bg-#{$color-name}-#{$color-variant} {
+                    background-color : #{$hex-value} !important;
+                }
+            }
+        }
+    }
+}
+
+@mixin color-root-variables($colors: $material-short-colors) {
+    @each $color-name, $color-variants in $colors {
+        @each $color-variant, $hex-value in $color-variants {
+            @if (string.length($color-variant) == 0) {
+                --#{$color-name}: #{$hex-value};
+            } @else {
+                --#{$color-name}-#{$color-variant}:#{$hex-value} ;
+            }
+        }
+    }
+}
