@@ -1,8 +1,8 @@
 {
     "name": "vue3-element-inspector",
     "private": true,
-    "version": "0.0.1",
-    "description": "It adds a sidebar tab in the elements inspection panel that shows the currently selected component.",
+    "version": "1.0.0",
+    "description": "It adds a sidebar tab in the elements inspection panel that shows the currently selected elements Vue properties.",
     "scripts": {
         "start": "npm run dev:chrome",
         "build": "npm run build:chrome",
