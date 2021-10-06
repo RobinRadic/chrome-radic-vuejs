@@ -6,28 +6,26 @@ import { ComponentInternalInstance } from '@vue/runtime-core';
 
 declare const $0: any;
 
-console.log(`Devtools Exp`);
 
 
 function getPanelContents() {
     return () => {
         if ( !$0 ) return { what: 'No valid element selected' };
 
-        console.log(`'getPanelContents`);
 
         const callbacks: Array<<T>(data: T) => T> = [];
 
-        const props: Array<{ name: string, key: string, cb?: (obj: any, data?: any) => any }> = [
+        const props: Array<{ name: string, key: string, cb?: (obj: any, data?: any, $0?:any) => any }> = [
             { name: 'VueApp', key: '__vue_app__', cb: (e: App) => null },
+            { name: 'VNode', key: '__vnode', cb: (e: VNode) => null },
+            { name: 'Vnode', key: '_vnode', cb: (e: VNode) => null },
             {
-                name: 'VueComponent', key: '__vueParentComponent',
-                cb  : (e: ComponentInternalInstance & any, data: any) => {
+                name: 'VueParentComponent', key: '__vueParentComponent',
+                cb  : (e: ComponentInternalInstance & any, data: any, $0) => {
+
                     let name = e?.type?.name;
                     if ( name ) {
                         name = `VueComponent[${name}]`;
-                    }
-                    if ( e.__vrl_route ) {
-                        data[ 'RouterLink(__vrl_route)' ] = e.__vrl_route;
                     }
                     name = name || 'VueComponent';
                     if ( e.ctx ) {
@@ -36,11 +34,12 @@ function getPanelContents() {
                     if ( e.vnode ) {
                         data[ `${name}.vnode` ] = e.vnode;
                     }
+                    if ( e.__vrl_route ) {
+                        data[ 'RouterLink(__vrl_route)' ] = e.__vrl_route;
+                    }
                     return { name }
                 },
             },
-            { name: 'VNode', key: '__vnode', cb: (e: VNode) => null },
-            { name: 'Vnode', key: '_vnode', cb: (e: VNode) => null },
             { name: 'VueEventEvokers', key: '_vei', cb: (e: any) => null },
             { name: 'TippyInstance', key: '$tippy', cb: (e: any) => null },
             { name: 'QuasarRippleDirective', key: '__qripple', cb: (e: any) => null },
@@ -62,7 +61,7 @@ function getPanelContents() {
                     if ( $0 && $0[ prop.key ] ) {
                         let name= `${prop.name}(${prop.key})`;
                         if ( prop.cb ) {
-                            let result = prop.cb($0[ prop.key ], data);
+                            let result = prop.cb($0[ prop.key ], data, $0);
                             if ( result !== null ) {
                                 name = result?.name || name;
                             }
@@ -71,14 +70,12 @@ function getPanelContents() {
                         data[name ] = $0[ prop.key ];
                     }
                 } catch (e) {
-                    console.warn('getPanelContents', e);
                     return { what: `Error ${e}` };
                 }
             });
 
             return data;
         } catch (e) {
-            console.warn('getPanelContents', e);
             return { what: `Error ${e}` };
         }
     };
@@ -87,6 +84,7 @@ function getPanelContents() {
 const elements = chrome.devtools.panels.elements;
 elements.createSidebarPane('Vue3', sidebar => {
     function updatePanelContents() {
+        sidebar.setExpression(serializeAsIIFE(() => ({nothing: 'yet'})), 'VUE RELATED PROPERTIES');
         sidebar.setExpression(serializeAsIIFE(getPanelContents()), 'VUE RELATED PROPERTIES');
     }
 
@@ -96,9 +94,6 @@ elements.createSidebarPane('Vue3', sidebar => {
         if ( visible ) updatePanelContents();
     });
 
-    elements.onSelectionChanged.addListener(() => {
-        console.log('elements.onSelectionChanged');
-    });
     // Don't update the sidebar if it's not visible
     sidebar.onShown.addListener(function (window) {
         console.log('sidebar.onShown', window);
