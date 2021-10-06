@@ -36,9 +36,7 @@ function getPanelContents() {
                     if ( e.vnode ) {
                         data[ `${name}.vnode` ] = e.vnode;
                     }
-                    return [
-                        { name },
-                    ];
+                    return { name }
                 },
             },
             { name: 'VNode', key: '__vnode', cb: (e: VNode) => null },
